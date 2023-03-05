@@ -1,3 +1,5 @@
 LeagueDelete/bin/
 LeagueDelete/obj/
 
+*.vsidx
+.vs/LeagueDelete/v17/.suo

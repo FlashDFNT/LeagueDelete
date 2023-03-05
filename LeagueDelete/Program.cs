@@ -47,7 +47,7 @@ namespace LeagueDelete
 
                 foreach (Process p in processes)
                 {
-                    foreach (String s in ForbiddenNames)
+                    foreach (String s in ForbiddenNames) 
                     {
                         if (p.ProcessName.Contains(s) && p.Id != Process.GetCurrentProcess().Id)
                         {
