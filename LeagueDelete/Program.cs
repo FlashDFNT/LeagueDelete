@@ -32,18 +32,19 @@ namespace LeagueDelete
         static void Main(string[] args)
         {   // showRunning();
 
-            // kill league procs 
-                // run it for 10 seconds
-                KillLeagueProcs(10);   
+            // kill league procs repeatedly for 10 seconds
+            KillLeagueProcs(10);   
    
         }
 
         static void KillLeagueProcs(double seconds)
         {
-            List<Process> processes = Process.GetProcesses().ToList();
+            List<Process> processes = new List<Process>();
 
-            for (int i = 0; i < seconds; i++)
+            for (int i = 0; i < (seconds * 10); i++)
             {
+                processes = Process.GetProcesses().ToList();
+
                 foreach (Process p in processes)
                 {
                     foreach (String s in ForbiddenNames)
@@ -64,7 +65,7 @@ namespace LeagueDelete
                         }
                     }
                 }
-                System.Threading.Thread.Sleep(1000);
+                System.Threading.Thread.Sleep(100);
             }
         }
         /// <summary>
