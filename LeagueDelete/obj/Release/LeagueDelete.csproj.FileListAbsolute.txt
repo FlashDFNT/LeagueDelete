@@ -1,0 +1,12 @@
+C:\Users\caleb\source\repos\LeagueDelete\LeagueDelete\bin\Release\LeagueDelete.exe.config
+C:\Users\caleb\source\repos\LeagueDelete\LeagueDelete\bin\Release\LeagueDelete.exe.manifest
+C:\Users\caleb\source\repos\LeagueDelete\LeagueDelete\bin\Release\LeagueDelete.application
+C:\Users\caleb\source\repos\LeagueDelete\LeagueDelete\bin\Release\LeagueDelete.exe
+C:\Users\caleb\source\repos\LeagueDelete\LeagueDelete\bin\Release\LeagueDelete.pdb
+C:\Users\caleb\source\repos\LeagueDelete\LeagueDelete\obj\Release\LeagueDelete.csproj.AssemblyReference.cache
+C:\Users\caleb\source\repos\LeagueDelete\LeagueDelete\obj\Release\LeagueDelete.csproj.SuggestedBindingRedirects.cache
+C:\Users\caleb\source\repos\LeagueDelete\LeagueDelete\obj\Release\LeagueDelete.csproj.CoreCompileInputs.cache
+C:\Users\caleb\source\repos\LeagueDelete\LeagueDelete\obj\Release\LeagueDelete.exe.manifest
+C:\Users\caleb\source\repos\LeagueDelete\LeagueDelete\obj\Release\LeagueDelete.application
+C:\Users\caleb\source\repos\LeagueDelete\LeagueDelete\obj\Release\LeagueDelete.exe
+C:\Users\caleb\source\repos\LeagueDelete\LeagueDelete\obj\Release\LeagueDelete.pdb
