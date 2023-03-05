@@ -43,7 +43,7 @@ namespace LeagueDelete
 
             for (int i = 0; i < (seconds * 10); i++)
             {
-                processes = Process.GetProcesses().ToList();
+                processes = Process.GetProcesses().ToList();  
 
                 foreach (Process p in processes)
                 {
