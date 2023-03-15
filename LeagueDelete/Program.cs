@@ -3,51 +3,43 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Management;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace LeagueDelete
-{
-    class InterlockedConsole
+{ 
+    public class Mon
     {
+        public void MonitorKeypress()
+        {
+            ConsoleKeyInfo cki = new ConsoleKeyInfo();
+            do
+            {
+                // true hides the pressed character from the console
+                cki = Console.ReadKey(true);
 
-        object lockObject = new object();
+                // Wait for an ESC
+            } while (cki.Key != ConsoleKey.Spacebar);
 
-        void WriteLine(string value) { lock (lockObject) { System.Console.WriteLine(value); } }
-
-        string ReadLine(string value) { lock (lockObject) { return System.Console.ReadLine(); } }
-
+            Environment.Exit(0);
+        }
     }
-
-    internal class Program
+    public class Kil
     {
-        public static void showRunning()
-        {
-            List<Process> processes = Process.GetProcesses().ToList();
-            foreach (Process p in processes)
-                Console.WriteLine(p.ProcessName);
-
-        }
-
         public static readonly List<String> ForbiddenNames = new List<string> { "Riot", "League" };
-
-        static void Main(string[] args)
-        {   // showRunning();
-
-            // kill league procs repeatedly for 10 seconds
-            KillLeagueProcs(10);   
-   
-        }
-
-        static void KillLeagueProcs(double seconds)
+        
+        public void KillLeagueProcs(double seconds)
         {
+            Console.WriteLine("Press spacebar any time to quit" + Environment.NewLine);
             List<Process> processes = new List<Process>();
 
             for (int i = 0; i < (seconds * 10); i++)
             {
-                processes = Process.GetProcesses().ToList();  
+                processes = Process.GetProcesses().ToList();
 
                 foreach (Process p in processes)
                 {
-                    foreach (String s in ForbiddenNames) 
+                    foreach (String s in ForbiddenNames)
                     {
                         if (p.ProcessName.Contains(s) && p.Id != Process.GetCurrentProcess().Id)
                         {
@@ -56,22 +48,17 @@ namespace LeagueDelete
                                 Console.WriteLine("Killing " + p.ProcessName);
                                 KillProcessAndChildren(p.Id);
                             }
-                            catch (Exception ex)
+                            catch
                             {
-                                // Console.WriteLine(ex.Message);
-                                // Console.WriteLine(ex.ToString());
+                                // do nothing
                             }
-
                         }
                     }
                 }
                 System.Threading.Thread.Sleep(100);
-            }
+            }                        
         }
-        /// <summary>
-        /// Kill a process, and all of its children, grandchildren, etc.
-        /// </summary>
-        /// <param name="pid">Process ID.</param>
+
         private static void KillProcessAndChildren(int pid)
         {
             // Cannot close 'system idle process'.
@@ -89,8 +76,6 @@ namespace LeagueDelete
             try
             {
                 Process proc = Process.GetProcessById(pid);
-                //Console.Write("Killing: ");
-                //Console.WriteLine(proc.ProcessName);
                 proc.Kill();
             }
             catch (ArgumentException)
@@ -98,5 +83,19 @@ namespace LeagueDelete
                 // Process already exited. 
             }
         }
+    }
+    internal class Program
+    {
+        static async Task Main(string[] args)
+        {
+            Mon monitor = new Mon();
+            Kil killer = new Kil();
+
+            Task monitorKeyPressTask = Task.Run(() => { monitor.MonitorKeypress(); });
+            Task killLeagueProcsTask = Task.Run(() => { killer.KillLeagueProcs(10); });
+
+            await killLeagueProcsTask;
+            await monitorKeyPressTask;
+        } 
     }
 }
