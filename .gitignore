@@ -1,7 +1,10 @@
-LeagueDelete/bin/
-LeagueDelete/obj/
-LeagueDelete/publish/
+LeagueDeleter/bin/
+LeagueDeleter/obj/
+LeagueDeleter/publish/
+LeagueDeleter/publish/LeagueDelete.application
+LeagueDeleter/publish/setup.exe
 *.vsidx
 .vs/LeagueDelete/v17/.suo
-LeagueDelete/publish/LeagueDelete.application
-LeagueDelete/publish/setup.exe
+.vs/LeagueDelete
+.vs/ProjectEvaluation
+
