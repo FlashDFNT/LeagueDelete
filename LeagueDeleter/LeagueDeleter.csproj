@@ -6,6 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>leaguedelete.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
