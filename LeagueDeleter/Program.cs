@@ -10,49 +10,100 @@ namespace LeagueDelete
 {
     public class Mon
     {
-        public void MonitorKeypress()
+        public void MonitorKeypress(Kil killer)
         {
+            killer.Killables.Add("League", new List<String> { "League", "Riot" });
+
             ConsoleKeyInfo cki = new ConsoleKeyInfo();
             do
             {
                 // true hides the pressed character from the console
                 cki = Console.ReadKey(true);
 
-                // Wait for an ESC
+                try
+                {
+                    if (cki.Key == ConsoleKey.Z)
+                    {
+                        killer.Killables.Add("Zoom", new List<String> { "Zoom" });
+                        
+                    }
+                    else if (cki.Key == ConsoleKey.M)
+                    {
+                        killer.Killables.Add("Mtg", new List<String> { "MTGA" });
+                        
+                    }
+
+                    else if (cki.Key == ConsoleKey.D)
+                    {
+                        killer.Killables.Add("Discord", new List<String> { "Discord" });
+                       
+                    }
+                    else if (cki.Key == ConsoleKey.S)
+                    {
+                        killer.Killables.Add("Slack", new List<String> { "slack" });
+
+                    }
+                    else if (cki.Key == ConsoleKey.T)
+                    {
+                        killer.Killables.Add("Teams", new List<String> { "Teams" });
+
+                    }
+                }
+                catch
+                {
+                    // do nothing
+                    // it's a duplicate entry error caused by holding down the button.
+                }                
+
+            // Wait for spacebar
             } while (cki.Key != ConsoleKey.Spacebar);
 
             Environment.Exit(0);
         }
     }
+    
     public class Kil
     {
-        public static readonly List<String> ForbiddenNames = new List<string> { "Riot", "League" };
-
-        public void KillLeagueProcs(double seconds)
+        public Dictionary<String, IEnumerable<String>> Killables = new Dictionary<string, IEnumerable<string>>();
+        public void KillKillables(double seconds)
         {
-            Console.WriteLine("Press spacebar any time to quit" + Environment.NewLine);
+
             List<Process> processes = new List<Process>();
 
             for (int i = 0; i < (seconds * 10); i++)
             {
+                ////debugging
+                //foreach (var k in Killables)
+                //{
+                //    foreach (var kk in k.Value)
+                //    {
+                //        Console.WriteLine(kk);
+                //    }
+                //}
+
+                //// end 
                 processes = Process.GetProcesses().ToList();
 
                 foreach (Process p in processes)
                 {
-                    foreach (String s in ForbiddenNames)
+                    foreach (KeyValuePair<string,IEnumerable<String>> kvp in Killables)
                     {
-                        if (p.ProcessName.Contains(s) && p.Id != Process.GetCurrentProcess().Id)
+                        foreach (string s in kvp.Value)
                         {
-                            try
+                            if (p.ProcessName.Contains(s) && p.Id != Process.GetCurrentProcess().Id)
                             {
-                                Console.WriteLine("Killing " + p.ProcessName);
-                                KillProcessAndChildren(p.Id);
-                            }
-                            catch
-                            {
-                                // do nothing
+                                try
+                                {
+                                    Console.WriteLine("Killing " + p.ProcessName);
+                                    KillProcessAndChildren(p.Id);
+                                }
+                                catch
+                                {
+                                    // do nothing
+                                }
                             }
                         }
+                        
                     }
                 }
                 System.Threading.Thread.Sleep(100);
@@ -88,14 +139,21 @@ namespace LeagueDelete
     {
         static async Task Main(string[] args)
         {
-            Mon monitor = new Mon();
-            Kil killer = new Kil();
 
-            Task monitorKeyPressTask = Task.Run(() => { monitor.MonitorKeypress(); });
-            Task killLeagueProcsTask = Task.Run(() => { killer.KillLeagueProcs(10); });
+            Console.WriteLine("Press Z to kill Zoom");
+            Console.WriteLine("Press M to kill MtG Arena");
+            Console.WriteLine("Press S Slack");
+            Console.WriteLine("Press T Teams");
+            Console.WriteLine("Press spacebar any time to quit" + Environment.NewLine);
+
+            Kil killer = new Kil();
+            Mon monitor = new Mon();
+
+            Task monitorKeyPressTask = Task.Run(() => { monitor.MonitorKeypress(killer); });
+            Task killLeagueProcsTask = Task.Run(() => { killer.KillKillables(10); });
 
             await killLeagueProcsTask;
-            await monitorKeyPressTask;
+            
         }
     }
 }
