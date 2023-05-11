@@ -32,7 +32,11 @@ namespace LeagueDelete
                         killer.Killables.Add("Mtg", new List<String> { "MTGA" });
                         
                     }
+                    else if (cki.Key == ConsoleKey.O)
+                    {
+                        killer.Killables.Add("OBS Studio", new List<String> { "obs" });
 
+                    }
                     else if (cki.Key == ConsoleKey.D)
                     {
                         killer.Killables.Add("Discord", new List<String> { "Discord" });
@@ -72,7 +76,9 @@ namespace LeagueDelete
 
             for (int i = 0; i < (seconds * 10); i++)
             {
-                ////debugging
+                processes = Process.GetProcesses().ToList();
+
+                ////show the list of killable processes
                 //foreach (var k in Killables)
                 //{
                 //    foreach (var kk in k.Value)
@@ -80,9 +86,12 @@ namespace LeagueDelete
                 //        Console.WriteLine(kk);
                 //    }
                 //}
-
-                //// end 
-                processes = Process.GetProcesses().ToList();
+                
+                ////show list of current processes
+                //foreach (var k in processes)
+                //{
+                //    Console.WriteLine(k.Id + " " + k.ProcessName);
+                //}
 
                 foreach (Process p in processes)
                 {
@@ -120,17 +129,20 @@ namespace LeagueDelete
             ManagementObjectSearcher searcher = new ManagementObjectSearcher
                     ("Select * From Win32_Process Where ParentProcessID=" + pid);
             ManagementObjectCollection moc = searcher.Get();
-            foreach (ManagementObject mo in moc)
-            {
-                KillProcessAndChildren(Convert.ToInt32(mo["ProcessID"]));
-            }
+
+            //foreach (ManagementObject mo in moc)
+            //{
+            //    KillProcessAndChildren(Convert.ToInt32(mo["ProcessID"]));
+            //}
+
             try
             {
                 Process proc = Process.GetProcessById(pid);
                 proc.Kill();
             }
-            catch (ArgumentException)
+            catch (ArgumentException e)
             {
+                var x = e;
                 // Process already exited. 
             }
         }
@@ -142,6 +154,7 @@ namespace LeagueDelete
 
             Console.WriteLine("Press Z to kill Zoom");
             Console.WriteLine("Press M to kill MtG Arena");
+            Console.WriteLine("Press O to kill OBS Studio");
             Console.WriteLine("Press S Slack");
             Console.WriteLine("Press T Teams");
             Console.WriteLine("Press spacebar any time to quit" + Environment.NewLine);
