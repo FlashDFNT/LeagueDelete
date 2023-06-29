@@ -52,6 +52,11 @@ namespace LeagueDelete
                         killer.Killables.Add("Teams", new List<String> { "Teams" });
 
                     }
+                    else if (cki.Key == ConsoleKey.E)
+                    {
+                        killer.Killables.Add("Telegram", new List<String> { "Telegram" });
+
+                    }
                 }
                 catch
                 {
@@ -156,7 +161,7 @@ namespace LeagueDelete
             Console.WriteLine("Press M to kill MtG Arena");
             Console.WriteLine("Press O to kill OBS Studio");
             Console.WriteLine("Press S Slack");
-            Console.WriteLine("Press T Teams");
+            Console.WriteLine("Press E to kill Telegram");
             Console.WriteLine("Press spacebar any time to quit" + Environment.NewLine);
 
             Kil killer = new Kil();
