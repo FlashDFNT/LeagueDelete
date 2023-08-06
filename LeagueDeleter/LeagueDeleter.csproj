@@ -8,7 +8,12 @@
     <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>leaguedelete.snk</AssemblyOriginatorKeyFile>
+    <ApplicationIcon>spat.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="spat.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Management" Version="7.0.0" />

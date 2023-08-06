@@ -27,11 +27,6 @@ namespace LeagueDelete
                         killer.Killables.Add("Zoom", new List<String> { "Zoom" });
                         
                     }
-                    else if (cki.Key == ConsoleKey.M)
-                    {
-                        killer.Killables.Add("Mtg", new List<String> { "MTGA" });
-                        
-                    }
                     else if (cki.Key == ConsoleKey.O)
                     {
                         killer.Killables.Add("OBS Studio", new List<String> { "obs" });
@@ -50,11 +45,6 @@ namespace LeagueDelete
                     else if (cki.Key == ConsoleKey.T)
                     {
                         killer.Killables.Add("Teams", new List<String> { "Teams" });
-
-                    }
-                    else if (cki.Key == ConsoleKey.E)
-                    {
-                        killer.Killables.Add("Telegram", new List<String> { "Telegram" });
 
                     }
                 }
@@ -156,12 +146,11 @@ namespace LeagueDelete
     {
         static async Task Main(string[] args)
         {
-
+            Console.WriteLine("Press D to kill Discord");
             Console.WriteLine("Press Z to kill Zoom");
-            Console.WriteLine("Press M to kill MtG Arena");
             Console.WriteLine("Press O to kill OBS Studio");
-            Console.WriteLine("Press S Slack");
-            Console.WriteLine("Press E to kill Telegram");
+            Console.WriteLine("Press S to kill Slack");
+            Console.WriteLine("Press T to kill for Teams");
             Console.WriteLine("Press spacebar any time to quit" + Environment.NewLine);
 
             Kil killer = new Kil();
