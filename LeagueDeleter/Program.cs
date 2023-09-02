@@ -8,63 +8,62 @@ using System.Threading.Tasks;
 
 namespace LeagueDelete
 {
-    public class Mon
+    public class KeyMonitor
     {
-        public void MonitorKeypress(Kil killer)
+        public void Monitor(ProcessHitman killer)
         {
-            killer.Killables.Add("League", new List<String> { "League", "Riot" });
+            killer.AddToHitList("League", "L", new List<string> { "League", "Riot" });
 
             ConsoleKeyInfo cki = new ConsoleKeyInfo();
             do
             {
-                // true hides the pressed character from the console
                 cki = Console.ReadKey(true);
 
                 try
                 {
-                    if (cki.Key == ConsoleKey.Z)
-                    {
-                        killer.Killables.Add("Zoom", new List<String> { "Zoom" });
-                        
-                    }
-                    else if (cki.Key == ConsoleKey.O)
-                    {
-                        killer.Killables.Add("OBS Studio", new List<String> { "obs" });
-
-                    }
-                    else if (cki.Key == ConsoleKey.D)
-                    {
-                        killer.Killables.Add("Discord", new List<String> { "Discord" });
-                       
-                    }
-                    else if (cki.Key == ConsoleKey.S)
-                    {
-                        killer.Killables.Add("Slack", new List<String> { "slack" });
-
-                    }
-                    else if (cki.Key == ConsoleKey.T)
-                    {
-                        killer.Killables.Add("Teams", new List<String> { "Teams" });
-
-                    }
+                    killer.TryAddProcessByKey(cki.Key.ToString());
                 }
                 catch
                 {
-                    // do nothing
-                    // it's a duplicate entry error caused by holding down the button.
-                }                
+                    // Handle duplicate entry or other exceptions
+                }
 
-            // Wait for spacebar
             } while (cki.Key != ConsoleKey.Spacebar);
 
             Environment.Exit(0);
         }
     }
-    
-    public class Kil
+
+
+    public class ProcessHitman
     {
-        public Dictionary<String, IEnumerable<String>> Killables = new Dictionary<string, IEnumerable<string>>();
-        public void KillKillables(double seconds)
+        public Dictionary<string, IEnumerable<string>> HitList = new Dictionary<string, IEnumerable<string>>();
+        private readonly Dictionary<string, string> KeyToProcessMap = new Dictionary<string, string>();
+
+        public void AddToHitList(string processName, string key, List<string> processList)
+        {
+            HitList.Add(processName, processList);
+            KeyToProcessMap.Add(key, processName);
+        }
+
+        public void DisplayInstructions()
+        {
+            foreach (var key in KeyToProcessMap.Keys)
+            {
+                Console.WriteLine($"Press {key} to exit {KeyToProcessMap[key]}");
+            }
+        }
+
+        public void TryAddProcessByKey(string key)
+        {
+            if (KeyToProcessMap.ContainsKey(key))
+            {
+                string processName = KeyToProcessMap[key];
+                HitList.Add(processName, new List<string> { processName });
+            }
+        }
+
+        public void Hit(double seconds)
         {
 
             List<Process> processes = new List<Process>();
@@ -73,6 +72,7 @@ namespace LeagueDelete
             {
                 processes = Process.GetProcesses().ToList();
 
+                ////Debugging:
                 ////show the list of killable processes
                 //foreach (var k in Killables)
                 //{
@@ -81,7 +81,7 @@ namespace LeagueDelete
                 //        Console.WriteLine(kk);
                 //    }
                 //}
-                
+
                 ////show list of current processes
                 //foreach (var k in processes)
                 //{
@@ -90,7 +90,7 @@ namespace LeagueDelete
 
                 foreach (Process p in processes)
                 {
-                    foreach (KeyValuePair<string,IEnumerable<String>> kvp in Killables)
+                    foreach (KeyValuePair<string, IEnumerable<string>> kvp in HitList)
                     {
                         foreach (string s in kvp.Value)
                         {
@@ -98,7 +98,8 @@ namespace LeagueDelete
                             {
                                 try
                                 {
-                                    Console.WriteLine("Killing " + p.ProcessName);
+                                    Console.WriteLine($"Killing {string.Join(", ", kvp.Value)}");
+
                                     KillProcessAndChildren(p.Id);
                                 }
                                 catch
@@ -121,14 +122,6 @@ namespace LeagueDelete
             {
                 return;
             }
-            ManagementObjectSearcher searcher = new ManagementObjectSearcher
-                    ("Select * From Win32_Process Where ParentProcessID=" + pid);
-            ManagementObjectCollection moc = searcher.Get();
-
-            //foreach (ManagementObject mo in moc)
-            //{
-            //    KillProcessAndChildren(Convert.ToInt32(mo["ProcessID"]));
-            //}
 
             try
             {
@@ -137,7 +130,6 @@ namespace LeagueDelete
             }
             catch (ArgumentException e)
             {
-                var x = e;
                 // Process already exited. 
             }
         }
@@ -146,21 +138,21 @@ namespace LeagueDelete
     {
         static async Task Main(string[] args)
         {
-            Console.WriteLine("Press D to kill Discord");
-            Console.WriteLine("Press Z to kill Zoom");
-            Console.WriteLine("Press O to kill OBS Studio");
-            Console.WriteLine("Press S to kill Slack");
-            Console.WriteLine("Press T to kill for Teams");
             Console.WriteLine("Press spacebar any time to quit" + Environment.NewLine);
 
-            Kil killer = new Kil();
-            Mon monitor = new Mon();
+            ProcessHitman hitman = new ProcessHitman();
+            hitman.AddToHitList("Teams", "T", new List<string> { "Teams" });
+            hitman.AddToHitList("Discord", "D", new List<string> { "Discord" });
+            hitman.AddToHitList("Slack", "S", new List<string> { "Slack" });
 
-            Task monitorKeyPressTask = Task.Run(() => { monitor.MonitorKeypress(killer); });
-            Task killLeagueProcsTask = Task.Run(() => { killer.KillKillables(10); });
+            hitman.DisplayInstructions();
 
-            await killLeagueProcsTask;
-            
+            KeyMonitor keyMonitor = new KeyMonitor();
+
+            Task keyMon = Task.Run(() => { keyMonitor.Monitor(hitman); });
+            Task hitProcs = Task.Run(() => { hitman.Hit(10); });
+
+            await hitProcs;
         }
     }
 }
