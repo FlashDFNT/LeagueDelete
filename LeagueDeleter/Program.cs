@@ -12,8 +12,7 @@ namespace LeagueDelete
     {
         public void Monitor(ProcessHitman killer)
         {
-            killer.AddToHitList("League", "L", new List<string> { "League", "Riot" });
-
+            // Removed League process here.
             ConsoleKeyInfo cki = new ConsoleKeyInfo();
             do
             {
@@ -37,12 +36,21 @@ namespace LeagueDelete
 
     public class ProcessHitman
     {
-        public Dictionary<string, IEnumerable<string>> HitList = new Dictionary<string, IEnumerable<string>>();
+        public Dictionary<string, IEnumerable<string>> ActiveHitList = new Dictionary<string, IEnumerable<string>>();
+        public Dictionary<string, IEnumerable<string>> InactiveHitList = new Dictionary<string, IEnumerable<string>>();
         private readonly Dictionary<string, string> KeyToProcessMap = new Dictionary<string, string>();
 
-        public void AddToHitList(string processName, string key, List<string> processList)
+        public void AddToHitList(string processName, string key, List<string> processList, bool isActive = false)
         {
-            HitList.Add(processName, processList);
+            if (isActive)
+            {
+                ActiveHitList.Add(processName, processList);
+            }
+            else
+            {
+                InactiveHitList.Add(processName, processList);
+            }
+
             KeyToProcessMap.Add(key, processName);
         }
 
@@ -54,12 +62,13 @@ namespace LeagueDelete
             }
         }
 
+
         public void TryAddProcessByKey(string key)
         {
-            if (KeyToProcessMap.ContainsKey(key))
+            if (InactiveHitList.ContainsKey(KeyToProcessMap[key]))
             {
                 string processName = KeyToProcessMap[key];
-                HitList.Add(processName, new List<string> { processName });
+                ActiveHitList.Add(processName, InactiveHitList[processName]);
             }
         }
 
@@ -90,7 +99,7 @@ namespace LeagueDelete
 
                 foreach (Process p in processes)
                 {
-                    foreach (KeyValuePair<string, IEnumerable<string>> kvp in HitList)
+                    foreach (KeyValuePair<string, IEnumerable<string>> kvp in ActiveHitList) // Updated to ActiveHitList
                     {
                         foreach (string s in kvp.Value)
                         {
@@ -99,7 +108,6 @@ namespace LeagueDelete
                                 try
                                 {
                                     Console.WriteLine($"Killing {string.Join(", ", kvp.Value)}");
-
                                     KillProcessAndChildren(p.Id);
                                 }
                                 catch
@@ -108,9 +116,9 @@ namespace LeagueDelete
                                 }
                             }
                         }
-                        
                     }
                 }
+
                 System.Threading.Thread.Sleep(100);
             }
         }
@@ -141,9 +149,15 @@ namespace LeagueDelete
             Console.WriteLine("Press spacebar any time to quit" + Environment.NewLine);
 
             ProcessHitman hitman = new ProcessHitman();
+
+            // Add League to ActiveHitList so it starts being terminated right away
+            hitman.AddToHitList("League", "L", new List<string> { "League", "Riot" }, true);
+
+            // Add others to InactiveHitList
             hitman.AddToHitList("Teams", "T", new List<string> { "Teams" });
             hitman.AddToHitList("Discord", "D", new List<string> { "Discord" });
             hitman.AddToHitList("Slack", "S", new List<string> { "Slack" });
+
 
             hitman.DisplayInstructions();
 
