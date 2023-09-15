@@ -10,26 +10,42 @@ namespace LeagueDelete
 {
     public class KeyMonitor
     {
-        public void Monitor(ProcessHitman killer)
+        public void Monitor(ProcessHitman killer, CancellationTokenSource cts)
         {
-            // Removed League process here.
             ConsoleKeyInfo cki = new ConsoleKeyInfo();
             do
             {
                 cki = Console.ReadKey(true);
 
+                // Cancel if spacebar is hit.
+
+                // Personal note,
+                // Using cancellation token is redundant here but
+                // will be useful if the app supports multiple tasks that need
+                // to be notified of cancellation
+                if (cki.Key == ConsoleKey.Spacebar)
+                {
+                    cts.Cancel();
+                    Environment.Exit(0);
+                }
+
+                // Kill the process corresponding to keyboard key
                 try
                 {
                     killer.TryAddProcessByKey(cki.Key.ToString());
                 }
                 catch
                 {
-                    // Handle duplicate entry or other exceptions
+                    // duplicate entry or other exceptions
+                    // do nothing
                 }
 
-            } while (cki.Key != ConsoleKey.Spacebar);
+                if (cts.Token.IsCancellationRequested)
+                {
+                    break;
+                }
 
-            Environment.Exit(0);
+            } while (true);
         }
     }
 
@@ -40,6 +56,14 @@ namespace LeagueDelete
         public Dictionary<string, IEnumerable<string>> InactiveHitList = new Dictionary<string, IEnumerable<string>>();
         private readonly Dictionary<string, string> KeyToProcessMap = new Dictionary<string, string>();
 
+        /// <summary>
+        /// Inactive hitlist items are added in Main(). League is Active by default,
+        /// 
+        /// </summary>
+        /// <param name="processName"></param>
+        /// <param name="key"></param>
+        /// <param name="processList"></param>
+        /// <param name="isActive"></param>
         public void AddToHitList(string processName, string key, List<string> processList, bool isActive = false)
         {
             if (isActive)
@@ -53,13 +77,27 @@ namespace LeagueDelete
 
             KeyToProcessMap.Add(key, processName);
         }
-
+        /// <summary>
+        /// "Press S to kill Slack,
+        ///  Press Spacebar to end program" 
+        /// </summary>
         public void DisplayInstructions()
         {
+            ////Debugging
+            //Process[] runningProcesses = Process.GetProcesses();
+            //Console.WriteLine("Currently running processes:");
+            //foreach (var process in runningProcesses)
+            //{
+            //    Console.WriteLine($"- {process.ProcessName}");
+            //}
+
+            /* Instructions */
             foreach (var key in KeyToProcessMap.Keys)
             {
                 Console.WriteLine($"Press {key} to exit {KeyToProcessMap[key]}");
             }
+
+            Console.WriteLine("Press spacebar any time to quit" + Environment.NewLine);
         }
 
 
@@ -71,31 +109,24 @@ namespace LeagueDelete
                 ActiveHitList.Add(processName, InactiveHitList[processName]);
             }
         }
-
-        public void Hit(double seconds)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="seconds">Number of seconds the program should run</param>
+        /// <param name="cancellationToken"></param>
+        public void Hit(double seconds, CancellationToken cancellationToken)
         {
 
             List<Process> processes = new List<Process>();
 
             for (int i = 0; i < (seconds * 10); i++)
             {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    break;
+                }
+
                 processes = Process.GetProcesses().ToList();
-
-                ////Debugging:
-                ////show the list of killable processes
-                //foreach (var k in Killables)
-                //{
-                //    foreach (var kk in k.Value)
-                //    {
-                //        Console.WriteLine(kk);
-                //    }
-                //}
-
-                ////show list of current processes
-                //foreach (var k in processes)
-                //{
-                //    Console.WriteLine(k.Id + " " + k.ProcessName);
-                //}
 
                 foreach (Process p in processes)
                 {
@@ -103,11 +134,11 @@ namespace LeagueDelete
                     {
                         foreach (string s in kvp.Value)
                         {
-                            if (p.ProcessName.Contains(s) && p.Id != Process.GetCurrentProcess().Id)
+                            if (p.ProcessName.IndexOf(s, StringComparison.OrdinalIgnoreCase) >= 0 && p.Id != Process.GetCurrentProcess().Id)
                             {
                                 try
                                 {
-                                    Console.WriteLine($"Killing {string.Join(", ", kvp.Value)}");
+                                    Console.WriteLine($"Killing {p.ProcessName}");
                                     KillProcessAndChildren(p.Id);
                                 }
                                 catch
@@ -146,8 +177,6 @@ namespace LeagueDelete
     {
         static async Task Main(string[] args)
         {
-            Console.WriteLine("Press spacebar any time to quit" + Environment.NewLine);
-
             ProcessHitman hitman = new ProcessHitman();
 
             // Add League to ActiveHitList so it starts being terminated right away
@@ -163,8 +192,10 @@ namespace LeagueDelete
 
             KeyMonitor keyMonitor = new KeyMonitor();
 
-            Task keyMon = Task.Run(() => { keyMonitor.Monitor(hitman); });
-            Task hitProcs = Task.Run(() => { hitman.Hit(10); });
+            CancellationTokenSource cts = new CancellationTokenSource();
+
+            Task keyMon = Task.Run(() => { keyMonitor.Monitor(hitman, cts); }, cts.Token);
+            Task hitProcs = Task.Run(() => { hitman.Hit(10, cts.Token); }, cts.Token);
 
             await hitProcs;
         }
