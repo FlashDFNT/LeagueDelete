@@ -8,11 +8,13 @@
     <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>leaguedelete.snk</AssemblyOriginatorKeyFile>
-    <ApplicationIcon>spat.ico</ApplicationIcon>
+    <ApplicationIcon>spat2.ico</ApplicationIcon>
+    <StartupObject />
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="spat.ico" />
+    <Content Include="spat2.ico" />
   </ItemGroup>
 
   <ItemGroup>
