@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -23,6 +23,7 @@ namespace LeagueDelete
                 // Using cancellation token is redundant here but
                 // will be useful if the app supports multiple tasks that need
                 // to be notified of cancellation
+		// MOD twb 20240413@1257
                 if (cki.Key == ConsoleKey.Spacebar)
                 {
                     cts.Cancel();
